@@ -5,15 +5,15 @@ import {
   SkipSelf,
   Provider,
 } from '@angular/core';
-import { HttpRequest, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { JwtInterceptor, TokenGetter } from './jwt.interceptor';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthScheme, JwtInterceptor, TokenGetter } from './jwt.interceptor';
 import { JWT_OPTIONS } from './jwtoptions.token';
 import { JwtHelperService } from './jwthelper.service';
 
 export interface JwtConfig {
   tokenGetter?: TokenGetter;
   headerName?: string;
-  authScheme?: string | ((request?: HttpRequest<any>) => string);
+  authScheme?: AuthScheme;
   allowedDomains?: Array<string | RegExp>;
   disallowedRoutes?: Array<string | RegExp>;
   throwNoTokenError?: boolean;

@@ -1,18 +1,31 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
+import { isTokenExpired } from 'angular-jwt/lib/jwt-utils';
 import { from, Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { JwtHelperService } from './jwthelper.service';
 import { JWT_OPTIONS } from './jwtoptions.token';
 
 export type TokenGetter = (request?: HttpRequest<any>) => string | null | Promise<string | null>;
+export type AuthScheme = string | ((request?: HttpRequest<any>) => string);
+
+export function getAuthScheme(
+  authScheme: AuthScheme,
+  request: HttpRequest<any>
+): string {
+  if (typeof authScheme === 'function') {
+    return authScheme(request);
+  }
+
+  return authScheme;
+}
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
   tokenGetter: TokenGetter;
   headerName: string;
-  authScheme: string | ((request?: HttpRequest<any>) => string);
+  authScheme: AuthScheme;
   allowedDomains: Array<string | RegExp>;
   disallowedRoutes: Array<string | RegExp>;
   throwNoTokenError: boolean;
@@ -96,7 +109,7 @@ export class JwtInterceptor implements HttpInterceptor {
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const authScheme = this.jwtHelper.getAuthScheme(this.authScheme, request);
+    const authScheme = getAuthScheme(this.authScheme, request);
     let tokenIsExpired = false;
 
     if (!token && this.throwNoTokenError) {
@@ -104,7 +117,7 @@ export class JwtInterceptor implements HttpInterceptor {
     }
 
     if (this.skipWhenExpired) {
-      tokenIsExpired = token ? this.jwtHelper.isTokenExpired(token) as boolean : true;
+      tokenIsExpired = token ? isTokenExpired(token) : true;
     }
 
     if (token && tokenIsExpired && this.skipWhenExpired) {
@@ -112,8 +125,8 @@ export class JwtInterceptor implements HttpInterceptor {
     } else if (token) {
       request = request.clone({
         setHeaders: {
-          [this.headerName]: `${authScheme}${token}`,
-        },
+          [this.headerName]: `${authScheme}${token}`
+        }
       });
     }
     return next.handle(request);
@@ -126,6 +139,7 @@ export class JwtInterceptor implements HttpInterceptor {
     if (!this.isAllowedDomain(request) || this.isDisallowedRoute(request)) {
       return next.handle(request);
     }
+
     const token = this.tokenGetter(request);
 
     if (token instanceof Promise) {
