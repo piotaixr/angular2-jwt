@@ -6,14 +6,12 @@ import {
   Provider,
 } from '@angular/core';
 import { HttpRequest, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { JwtInterceptor } from './jwt.interceptor';
+import { JwtInterceptor, TokenGetter } from './jwt.interceptor';
 import { JWT_OPTIONS } from './jwtoptions.token';
 import { JwtHelperService } from './jwthelper.service';
 
 export interface JwtConfig {
-  tokenGetter?: (
-    request?: HttpRequest<any>
-  ) => string | null | Promise<string | null>;
+  tokenGetter?: TokenGetter;
   headerName?: string;
   authScheme?: string | ((request?: HttpRequest<any>) => string);
   allowedDomains?: Array<string | RegExp>;

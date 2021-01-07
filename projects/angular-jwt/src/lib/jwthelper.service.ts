@@ -1,14 +1,20 @@
 import { HttpRequest } from '@angular/common/http';
 // tslint:disable:no-bitwise
 import { Inject, Injectable } from '@angular/core';
+import { JwtConfig } from 'angular-jwt/lib/angular-jwt.module';
+import { TokenGetter } from 'angular-jwt/lib/jwt.interceptor';
 import { JWT_OPTIONS } from './jwtoptions.token';
+
+function nullGetter() {
+  return null;
+}
 
 @Injectable()
 export class JwtHelperService {
-  tokenGetter: () => string | Promise<string>;
+  tokenGetter: TokenGetter;
 
-  constructor(@Inject(JWT_OPTIONS) config = null) {
-    this.tokenGetter = (config && config.tokenGetter) || function () {};
+  constructor(@Inject(JWT_OPTIONS) config: JwtConfig = null) {
+    this.tokenGetter = config.tokenGetter || nullGetter;
   }
 
   public urlBase64Decode(str: string): string {
