@@ -1,22 +1,16 @@
-import { Injectable, Inject } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-} from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
+import { from, Observable } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { JwtHelperService } from './jwthelper.service';
 import { JWT_OPTIONS } from './jwtoptions.token';
 
-import { mergeMap } from 'rxjs/operators';
-import { from, Observable } from 'rxjs';
+export type TokenGetter = (request?: HttpRequest<any>) => string | null | Promise<string | null>;
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
-  tokenGetter: (
-    request?: HttpRequest<any>
-  ) => string | null | Promise<string | null>;
+  tokenGetter: TokenGetter;
   headerName: string;
   authScheme: string | ((request?: HttpRequest<any>) => string);
   allowedDomains: Array<string | RegExp>;
@@ -97,11 +91,11 @@ export class JwtInterceptor implements HttpInterceptor {
     );
   }
 
-  handleInterception(
+  private handleInterception(
     token: string | null,
     request: HttpRequest<any>,
     next: HttpHandler
-  ) {
+  ): Observable<HttpEvent<any>> {
     const authScheme = this.jwtHelper.getAuthScheme(this.authScheme, request);
     let tokenIsExpired = false;
 
@@ -110,7 +104,7 @@ export class JwtInterceptor implements HttpInterceptor {
     }
 
     if (this.skipWhenExpired) {
-      tokenIsExpired = token ? this.jwtHelper.isTokenExpired(token) : true;
+      tokenIsExpired = token ? this.jwtHelper.isTokenExpired(token) as boolean : true;
     }
 
     if (token && tokenIsExpired && this.skipWhenExpired) {
