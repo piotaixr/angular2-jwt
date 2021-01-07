@@ -34,6 +34,7 @@ export class JwtModule {
       );
     }
   }
+
   static forRoot(options: JwtModuleOptions): ModuleWithProviders<JwtModule> {
     return {
       ngModule: JwtModule,
@@ -41,14 +42,14 @@ export class JwtModule {
         {
           provide: HTTP_INTERCEPTORS,
           useClass: JwtInterceptor,
-          multi: true,
+          multi: true
         },
         options.jwtOptionsProvider || {
           provide: JWT_OPTIONS,
-          useValue: options.config,
+          useValue: options.config
         },
-        JwtHelperService,
-      ],
+        JwtHelperService
+      ]
     };
   }
 }
