@@ -17,6 +17,8 @@ export class JwtHelperService {
     this.tokenGetter = config.tokenGetter || nullGetter;
   }
 
+  public decodeToken(token: string): any;
+  public decodeToken(token: Promise<string>): Promise<any>;
   public decodeToken(
     token: string | Promise<string> = this.tokenGetter()
   ): any | Promise<any> {
@@ -31,19 +33,23 @@ export class JwtHelperService {
     return decodeToken(token);
   }
 
+  public getTokenExpirationDate(token: string): Date | null;
+  public getTokenExpirationDate(token: Promise<string>): Promise<Date | null>;
   public getTokenExpirationDate(
     token: string | Promise<string> = this.tokenGetter()
   ): Date | null | Promise<Date | null> {
-    const decoded: any | Promise<any> = this.decodeToken(token);
-    if (decoded instanceof Promise) {
-      return decoded.then((tokenValue) =>
-        getTokenExpirationDate(tokenValue)
-      );
+    if (token instanceof Promise) {
+      return token.then(decodeToken)
+                  .then((tokenValue) =>
+                    getTokenExpirationDate(tokenValue)
+                  );
     }
 
-    return getTokenExpirationDate(decoded);
+    return getTokenExpirationDate(decodeToken(token));
   }
 
+  public isTokenExpired(token: string, offsetSeconds?: number): boolean;
+  public isTokenExpired(token: Promise<string>, offsetSeconds?: number): Promise<boolean>;
   public isTokenExpired(
     token: string | Promise<string> = this.tokenGetter(),
     offsetSeconds?: number
@@ -61,6 +67,7 @@ export class JwtHelperService {
     return isTokenExpired(token, offsetSeconds);
   }
 
+  // @deprecated
   public getAuthScheme(
     authScheme: Function | string | undefined,
     request: HttpRequest<any>
