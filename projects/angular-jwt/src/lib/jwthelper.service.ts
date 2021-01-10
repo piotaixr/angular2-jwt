@@ -1,7 +1,7 @@
 import { HttpRequest } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { JwtConfig } from 'angular-jwt/lib/angular-jwt.module';
-import { TokenGetter } from 'angular-jwt/lib/jwt.interceptor';
+import { JwtConfig } from './angular-jwt.module';
+import { TokenGetter } from './jwt.interceptor';
 import { decodeToken, getTokenExpirationDate, isTokenExpired } from './jwt-utils';
 import { JWT_OPTIONS } from './jwtoptions.token';
 

@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { isTokenExpired } from 'angular-jwt/lib/jwt-utils';
+import { isTokenExpired } from './jwt-utils';
 import { from, Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { JwtHelperService } from './jwthelper.service';
