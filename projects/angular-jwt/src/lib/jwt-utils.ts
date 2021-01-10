@@ -9,7 +9,7 @@ export function getTokenExpirationDate(decoded: any): Date | null {
   return date;
 }
 
-export function decodeToken(tokenValue: string) {
+export function decodeToken<T = any>(tokenValue: string): T {
   const parts = tokenValue.split('.');
 
   if (parts.length !== 3) {

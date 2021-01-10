@@ -17,11 +17,11 @@ export class JwtHelperService {
     this.tokenGetter = config.tokenGetter || nullGetter;
   }
 
-  public decodeToken(token: string): any;
-  public decodeToken(token: Promise<string>): Promise<any>;
-  public decodeToken(
+  public decodeToken<T = any>(token: string): T;
+  public decodeToken<T = any>(token: Promise<string>): Promise<T>;
+  public decodeToken<T = any>(
     token: string | Promise<string> = this.tokenGetter()
-  ): any | Promise<any> {
+  ): T | Promise<T> {
     if (token instanceof Promise) {
       return token.then((tokenValue: string) => decodeToken(tokenValue));
     }
@@ -30,7 +30,7 @@ export class JwtHelperService {
       return null;
     }
 
-    return decodeToken(token);
+    return decodeToken<T>(token);
   }
 
   public getTokenExpirationDate(token: string): Date | null;
