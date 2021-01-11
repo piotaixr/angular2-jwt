@@ -27,7 +27,7 @@ export function decodeToken<T = any>(tokenValue: string): T {
 }
 
 export function isTokenExpired(token: string, offsetSeconds: number = 0): boolean {
-  const date = getTokenExpirationDate(token);
+  const date = getTokenExpirationDate(decodeToken(token));
 
   if (date === null) {
     return false;
