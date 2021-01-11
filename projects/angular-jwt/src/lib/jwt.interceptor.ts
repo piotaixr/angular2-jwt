@@ -1,13 +1,13 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { isTokenExpired } from './jwt-utils';
 import { from, Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
+import { isTokenExpired } from './jwt-utils';
 import { JwtHelperService } from './jwthelper.service';
 import { JWT_OPTIONS } from './jwtoptions.token';
 
-export type TokenGetter = (request?: HttpRequest<any>) => string | null | Promise<string | null>;
+export type TokenGetter = (request?: HttpRequest<any>) => string | null | Promise<string | null> | Observable<string | null>;
 export type AuthScheme = string | ((request?: HttpRequest<any>) => string);
 
 export function getAuthScheme(
@@ -148,6 +148,8 @@ export class JwtInterceptor implements HttpInterceptor {
           return this.handleInterception(asyncToken, request, next);
         })
       );
+    } else if (token instanceof Observable) {
+      return token.pipe(mergeMap(asyncToken => this.handleInterception(asyncToken, request, next)));
     } else {
       return this.handleInterception(token, request, next);
     }
